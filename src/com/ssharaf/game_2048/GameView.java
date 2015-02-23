@@ -1,36 +1,35 @@
 package com.ssharaf.game_2048;
 
-import com.ssharaf.game_2048.SimpleGestureFilter.SimpleGestureListener;
-
-import android.R.color;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.FontMetrics;
 import android.graphics.Paint.Style;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
 public class GameView extends View
-{
-	
+{	
 	private Context context;
 	private Canvas canvas;
 	
 	private Paint paint;
 	private Paint numbers_paint;
+	private Paint board_paint;
 	
 	private int width;
 	private int height;
 	
-	private GamePuzzle gamePuzzle;
+	private Game2048 game2048;
 	private int margin;
 	private int tiles;
 	private int tile_size;
 	private float text_scale;
 	
+	/**
+	 * GameView constructor
+	 * @param context Application context
+	 */
 	public GameView(Context context)
 	{
 		super(context);
@@ -47,20 +46,28 @@ public class GameView extends View
 		text_scale = 0.55f;
 		
 		// Create puzzle grid
-		gamePuzzle = new GamePuzzle();
+		game2048 = new Game2048();
 		
 		// Begin new game
-		gamePuzzle.begin_game();
+		game2048.begin_game();
 	}
 	
-	public GamePuzzle getGamePuzzle()
+	/**
+	 * Get game object.
+	 * @return Game object.
+	 */
+	public Game2048 getGame2048()
 	{
-		return gamePuzzle;
+		return game2048;
 	}
 	
-	public void setGamePuzzle(GamePuzzle gamePuzzle)
+	/**
+	 * Set game object
+	 * @param game2048 Game object to be set.
+	 */
+	public void setGame2048(Game2048 game2048)
 	{
-		this.gamePuzzle = gamePuzzle;
+		this.game2048 = game2048;
 	}
 	
 	@Override
@@ -82,7 +89,7 @@ public class GameView extends View
 		canvas.drawRect(0.0f, 0.0f, width, height, paint);
 		
 		// Draw tiles
-		paint.setColor(getResources().getColor(R.color.tile));
+		paint.setColor(getResources().getColor(R.color.tile_normal));
 		for (int i = 0; i < tiles; i++)
 			for (int j = 0; j < tiles; j++)
 				canvas.drawRect(tile_size * i + margin, tile_size * j + margin, 
@@ -92,7 +99,7 @@ public class GameView extends View
 		
 		// Define color and style for numbers
 		numbers_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		numbers_paint.setColor(getResources().getColor(R.color.text));
+		numbers_paint.setColor(getResources().getColor(R.color.text_normal));
 		numbers_paint.setStyle(Style.FILL);
 		numbers_paint.setTextSize(tile_size * text_scale);
 		numbers_paint.setTextScaleX(tile_size / tile_size);
@@ -110,10 +117,41 @@ public class GameView extends View
 		// Let's display those numbers on screen
 		for (int i = 0; i < tiles; i++)
 			for (int j = 0; j < tiles; j++)
-				if (gamePuzzle.get_tile(j, i) != 0)
-					canvas.drawText(String.valueOf(gamePuzzle.get_tile(j, i)), i * tile_size + x, j * tile_size + y, numbers_paint);
+				if (game2048.get_tile(j, i) != 0)
+				{
+					switch (game2048.get_tile(j, i)) {
+					case (8):
+							
+						break;
+
+					default:
+						break;
+					}
+					
+					// Draw number on screen
+					canvas.drawText(String.valueOf(game2048.get_tile(j, i)), i * tile_size + x, j * tile_size + y, numbers_paint);
+				}
+		
+		// Display Score board
+		int grid_height = (tile_size * tiles) + (margin * 5);
+		
+		int board_x = 0;
+		int board_y = height - (height - grid_height) / 2; 
+		
+		int board_height = height - board_y;
+		int board_width = width - board_x;
+		
+		board_paint = new Paint();
+		board_paint.setColor(Color.BLACK);
+		board_paint.setTextSize(tile_size * 0.25f);
+		
+		canvas.drawText("Score: " + game2048.getScore(), board_x, board_y, board_paint);
+		
 	}
 	
+	/**
+	 *	This function is called when re-drawing is required to update game screen. 
+	 */
 	public void call_invalidate()
 	{
 		invalidate();

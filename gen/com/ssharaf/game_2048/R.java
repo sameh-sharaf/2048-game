@@ -12,8 +12,12 @@ public final class R {
     }
     public static final class color {
         public static final int background=0x7f040000;
-        public static final int text=0x7f040002;
-        public static final int tile=0x7f040001;
+        public static final int text_8=0x7f040004;
+        public static final int text_normal=0x7f040002;
+        /**   Tile and text color for number 8 
+         */
+        public static final int tile_8=0x7f040003;
+        public static final int tile_normal=0x7f040001;
     }
     public static final class drawable {
         public static final int ic_launcher=0x7f020000;

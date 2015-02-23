@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="background">#cdcdc1b4</color>
-    <color name="tile">#eeeee4da</color>
-    <color name="text">#ff776e65</color>
+    
+    <color name="tile_normal">#eeeee4da</color>
+    <color name="text_normal">#ff776e65</color>
+    
+    <!--  Tile and text color for number 8 -->
+    <color name="tile_8">#fff2b179</color>
+    <color name="text_8">#fff9f6f2</color>
     
 </resources>
