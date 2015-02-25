@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="background">#cdcdc1b4</color>
-    
     <color name="tile_normal">#eeeee4da</color>
     <color name="text_normal">#ff776e65</color>
-    
-    <!--  Tile and text color for number 8 -->
-    <color name="tile_8">#fff2b179</color>
-    <color name="text_8">#fff9f6f2</color>
-    
+    <color name="new_number">#ffff0000</color>
+    <color name="tile_8">#fff67c5f</color>
+    <color name="tile_16">#ffd67c5f</color>
+    <color name="tile_32">#ffd6ee00</color>
+    <color name="tile_64">#fff3f613</color>
+    <color name="tile_128">#ff8eec07</color>
+    <color name="tile_256">#ff7fd406</color>
+    <color name="tile_512">#ff71bd04</color>
+    <color name="tile_1024">#ff67ac05</color>
+    <color name="tile_2048">#ff937cd4</color>
 </resources>

@@ -1,18 +1,17 @@
 package com.ssharaf.game_2048;
 
 import java.util.Random;
-
 import android.util.Log;
 
-public class Game2048 {
-
+public class Game2048 
+{
 	private int[][] puzzle_grid;
 	private int tiles;
 	private int winning_number;
 	private int score;
-	
-	// Object to read/write log file data including best score and saved game.
-	private FileManager fileManager;
+	private static int best_score;
+	private int last_num_row;
+	private int last_num_col;
 	
 	private final static String TAG = "Game 2048";
 	
@@ -33,9 +32,6 @@ public class Game2048 {
 	{
 		this.winning_number = winning_number;
 		this.tiles = tiles;
-		
-		// Set log file
-		fileManager = new FileManager();
 		
 		// Create new game.
 		begin_game();
@@ -94,6 +90,20 @@ public class Game2048 {
 		
 		// Add new number to game grid
 		puzzle_grid[x][y] = 2;
+		
+		// Store coordinates of last added number to grid
+		last_num_row = x;
+		last_num_col = y;
+	}
+	
+	public int get_last_num_row()
+	{
+		return last_num_row;
+	}
+	
+	public int get_last_num_col()
+	{
+		return last_num_col;
 	}
 	
 	/**
@@ -101,9 +111,14 @@ public class Game2048 {
 	 */
 	public void print_grid()
 	{
+		Log.i(TAG, "2048 Game Grid:");
+		
 		for(int i = 0; i < tiles; i++)
+		{
 			for(int j = 0; j < tiles; j++)
-				Log.i(TAG,puzzle_grid[i][j] + " ");
+				System.out.print(puzzle_grid[i][j] + " ");
+			System.out.println();
+		}
 	}
 	
 	/**
@@ -133,51 +148,25 @@ public class Game2048 {
 					return false;
 		
 		// Next check: If there are possible combinations between neighbor tiles horizontally or vertically.
-		return isMergable();
+		return !isPlayable();
 	}
 	
 	/**
-	 * Merge each pair of tiles with same value and add to the left tile. 
+	 * Combine each pair of tiles with same value and sum them into one tile.
 	 * @param arr Array which its items to be merged
+	 * @return Flag indicates if combination occurred on array. Useful for checking possible movements.
 	 */
-	public boolean merge_left(int[] arr)
+	public boolean combine_tiles(int[] arr)
 	{
+		// Define flag for changes in array
 		boolean isChanged = false;
-		concat_left(arr);
 		
-		for(int i = tiles - 2; i >= 0; i--)
+		// First, concatenate array tiles to combine equal neighbors later. 
+		isChanged = concat_tiles(arr) || isChanged;
+		
+		for(int i = tiles - 1; i > 0; i--)
 		{
-			if (arr[i] == arr[i+1])
-			{
-				arr[i] = arr[i] * 2;
-				arr[i+1] = 0;
-				
-				// Add sum to score
-				score += arr[i];
-				
-				// Flag change in array
-				isChanged = true;
-				
-				// Skip next tile
-				i--;
-			}
-		}
-		
-		return isChanged;
-	}
-	
-	/**
-	 * Merge each pair of tiles with same value and add to the right tile
-	 * @param arr Array which its items to be merged
-	 */
-	public boolean merge_right(int[] arr)
-	{
-		boolean isChanged = false;
-		concat_right(arr);
-		
-		for(int i = 1; i < tiles; i++)
-		{
-			if (arr[i] == arr[i-1])
+			if (arr[i] != 0 && arr[i] == arr[i-1])
 			{
 				arr[i] = arr[i] * 2;
 				arr[i-1] = 0;
@@ -187,53 +176,37 @@ public class Game2048 {
 				
 				// Flag change in array
 				isChanged = true;
-				
+				Log.i(TAG, "combination applied.");
 				// Skip next tile
-				i++;
+				i--;
 			}
 		}
+		
+		// Second concatenation after equal tiles combination.
+		isChanged = concat_tiles(arr) || isChanged;
 		
 		return isChanged;
 	}
 	
 	/**
-	 * Concatenate tiles to right
+	 * Concatenate tiles and remove spacing between numbers.
 	 * @param arr Grid tiles to be concatenated.
+	 * @return Flag indicates if concatenation occurred on array. Useful for checking possible movements.
 	 */
-	public boolean concat_right(int[] arr)
+	public boolean concat_tiles(int[] arr)
 	{
 		boolean isChanged = false;
 		
 		for(int i = 0; i < tiles - 1; i++)
-			for(int j = i; j < tiles - 1; j++)
-				if (arr[j] != 0 && arr[j+1] == 0)
+			for(int j = tiles - 1; j > i; j--)
+				if (arr[j] == 0 && arr[j-1] != 0)
 				{
-					arr[j+1] = arr[j];
-					arr[j] = 0;
+					arr[j] = arr[j-1];
+					arr[j-1] = 0;
 					
 					// Flag change in array
 					isChanged = true;
-				}
-		return isChanged;
-	}
-	
-	/**
-	 * Concatenate tiles to left
-	 * @param arr Grid tiles to be concatenated.
-	 */
-	public boolean concat_left(int[] arr)
-	{
-		boolean isChanged = false;
-		
-		for(int i = tiles - 2; i >= 0; i--)
-			for(int j = i; j >= 0; j--)
-				if (arr[j] == 0 && arr[j+1] != 0)
-				{
-					arr[j] = arr[j+1];
-					arr[j+1] = 0;
-					
-					// Flag change in array
-					isChanged = true;
+					Log.i(TAG, "concatenation applied.");
 				}
 		
 		return isChanged;
@@ -253,7 +226,7 @@ public class Game2048 {
 		// Set score to zero
 		score = 0;
 		
-		// Add two numbers to new game
+		// Add two numbers to begin a new game!
 		insert_new_number();
 		insert_new_number();
 	}
@@ -287,46 +260,101 @@ public class Game2048 {
 	}
 	
 	/**
+	 * Get game's best score.
+	 * @return Best score value.
+	 */
+	public int getBestScore()
+	{
+		return best_score;
+	}
+	
+	/**
+	 * Set game's best score.
+	 * @param best_score New best score to be set.
+	 */
+	public void setBestScore(int best_score)
+	{
+		Game2048.best_score = best_score;
+	}
+	
+	/**
 	 * Copy a one-dimensional array
 	 * @param arr1 Source array.
 	 * @param arr2 Destination array.
 	 * @param size Size to be copied starting from first item.
+	 * @param isReverseCopy Choose copy mode: Normal or reversed copy.
 	 */
-	public void copyArray(int[] arr1, int[] arr2, int size)
+	public static void copyArray(int[] arr1, int[] arr2, boolean isReverseCopy)
 	{
-		for(int i=0; i<size; i++)
-			arr2[i] = arr1[i];
+		for(int i=0; i<arr1.length; i++)
+		{
+			if (isReverseCopy)
+				arr2[i] = arr1[arr1.length - i - 1];
+			else
+				arr2[i] = arr1[i];
+		}
 	}
 	
 	/**
-	 * Check if any combination of tiles is located in game grid. This to check if game has reached a dead-end.
-	 * @return Flag whether there is possible combination.
+	 * Copy specified column in game grid to array. 
+	 * @param arr Destination array.
+	 * @param j Column number.
+	 * @param isReverseCopy Copy mode: Normal or reversed.
 	 */
-	public boolean isMergable()
+	public void copyFromColumn(int[] arr, int j, boolean isReverseCopy)
 	{
-		// Check rows if possible merge can be located.
 		for(int i=0; i<tiles; i++)
 		{
+			if (isReverseCopy)
+				arr[i] = puzzle_grid[tiles - i - 1][j];
+			else
+				arr[i] = puzzle_grid[i][j];
+		}
+	}
+	
+	/**
+	 * Copy input array to specified grid column. 
+	 * @param arr Source array.
+	 * @param j Column number.
+	 * @param isReverseCopy Copy mode: Normal or reversed.
+	 */
+	public void copyToColumn(int[] arr, int j, boolean isReverseCopy)
+	{
+		for(int i=0; i<tiles; i++)
+		{
+			if (isReverseCopy)
+				puzzle_grid[tiles - i - 1][j] = arr[i];
+			else
+				puzzle_grid[i][j] = arr[i];
+		}
+	}
+	
+	/**
+	 * Check if any moves on game is possible, to determine if game has reached a dead-end.
+	 * @return Flag whether there is possible move.
+	 */
+	public boolean isPlayable()
+	{
+		// Check rows if possible moves can be located.
+		for(int i = 0; i < tiles; i++)
+		{
 			int[] temp = new int[tiles];
-			copyArray(puzzle_grid[i], temp, tiles);
+			copyArray(puzzle_grid[i], temp, false);
 			
-			if (merge_right(temp) || merge_left(temp))
+			if (combine_tiles(temp))
 			{
 				Log.i(TAG, "Row " + i + " has movement.");
 				return true;
 			}
 		}
 		
-		// Check columns if possible merge can be located.
-		for(int j=0; j<tiles; j++)
+		// Check columns if possible combine can be located.
+		for(int j = 0; j < tiles; j++)
 		{
 			int[] temp = new int[tiles];
-			for(int i=0; i<tiles; i++)
-			{
-				temp[i] = puzzle_grid[i][j];
-			}
+			copyFromColumn(temp, j, false);
 			
-			if (merge_right(temp) || merge_left(temp))
+			if (combine_tiles(temp))
 			{
 				Log.i(TAG, "Column " + j + " has movement.");
 				return true;

@@ -13,9 +13,9 @@ public class GameView extends View
 	private Context context;
 	private Canvas canvas;
 	
-	private Paint paint;
+	private Paint background_paint;
 	private Paint numbers_paint;
-	private Paint board_paint;
+	private Paint board_text_paint;
 	
 	private int width;
 	private int height;
@@ -25,6 +25,10 @@ public class GameView extends View
 	private int tiles;
 	private int tile_size;
 	private float text_scale;
+	
+	private float board_scale = 0.25f;
+	private int board_margin_x = 20;
+	private int board_margin_y = 20;
 	
 	/**
 	 * GameView constructor
@@ -84,20 +88,56 @@ public class GameView extends View
 	protected void onDraw(Canvas canvas)
 	{
 		// Draw Background
-		paint = new Paint();
-		paint.setColor(getResources().getColor(R.color.background));
-		canvas.drawRect(0.0f, 0.0f, width, height, paint);
+		background_paint = new Paint();
+		background_paint.setColor(getResources().getColor(R.color.background));
+		canvas.drawRect(0.0f, 0.0f, width, height, background_paint);
 		
 		// Draw tiles
-		paint.setColor(getResources().getColor(R.color.tile_normal));
 		for (int i = 0; i < tiles; i++)
 			for (int j = 0; j < tiles; j++)
+			{
+				switch(game2048.get_tile(j, i))
+				{
+					case 8:
+						background_paint.setColor(getResources().getColor(R.color.tile_8));
+						break;
+					case 16:
+						background_paint.setColor(getResources().getColor(R.color.tile_16));
+						break;
+					case 32:
+						background_paint.setColor(getResources().getColor(R.color.tile_32));
+						break;
+					case 64:
+						background_paint.setColor(getResources().getColor(R.color.tile_64));
+						break;
+					case 128:
+						background_paint.setColor(getResources().getColor(R.color.tile_128));
+						break;
+					case 256:
+						background_paint.setColor(getResources().getColor(R.color.tile_256));
+						break;
+					case 512:
+						background_paint.setColor(getResources().getColor(R.color.tile_512));
+						break;
+					case 1024:
+						background_paint.setColor(getResources().getColor(R.color.tile_1024));
+						break;
+					case 2048:
+						background_paint.setColor(getResources().getColor(R.color.tile_2048));
+						break;
+					default:
+						background_paint.setColor(getResources().getColor(R.color.tile_normal));
+						break;
+				}
+				
 				canvas.drawRect(tile_size * i + margin, tile_size * j + margin, 
-						tile_size * (i+1) - margin, tile_size * (j+1) - margin, paint);
+						tile_size * (i+1) - margin, tile_size * (j+1) - margin, background_paint);
+			}
 		
-		/* ##### Let's draw the numbers!! ##### */ 
-		
-		// Define color and style for numbers
+		/* 
+		 * Let's draw the numbers!! 
+		 * Define default color and style for numbers
+		 */
 		numbers_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		numbers_paint.setColor(getResources().getColor(R.color.text_normal));
 		numbers_paint.setStyle(Style.FILL);
@@ -118,35 +158,42 @@ public class GameView extends View
 		for (int i = 0; i < tiles; i++)
 			for (int j = 0; j < tiles; j++)
 				if (game2048.get_tile(j, i) != 0)
-				{
-					switch (game2048.get_tile(j, i)) {
-					case (8):
-							
-						break;
-
-					default:
-						break;
-					}
+				{					
+					// Apply unique text color on new number added to game grid.
+					if (j == game2048.get_last_num_row() && i == game2048.get_last_num_col())
+						numbers_paint.setColor(getResources().getColor(R.color.new_number));
+					else
+						numbers_paint.setColor(getResources().getColor(R.color.text_normal));
 					
 					// Draw number on screen
 					canvas.drawText(String.valueOf(game2048.get_tile(j, i)), i * tile_size + x, j * tile_size + y, numbers_paint);
 				}
 		
 		// Display Score board
-		int grid_height = (tile_size * tiles) + (margin * 5);
+		float board_height = height - (tile_size * tiles + margin * (tiles + 1));
 		
-		int board_x = 0;
-		int board_y = height - (height - grid_height) / 2; 
+		// Define color and style for numbers
+		board_text_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		board_text_paint.setColor(Color.BLACK); // #### Must be added to resources
+		board_text_paint.setStyle(Style.FILL);
+		board_text_paint.setTextSize(tile_size * board_scale);
+		board_text_paint.setTextScaleX(1.0f);
+		board_text_paint.setTextAlign(Paint.Align.CENTER);
 		
-		int board_height = height - board_y;
-		int board_width = width - board_x;
+		FontMetrics board_fontMetrics = board_text_paint.getFontMetrics();
 		
-		board_paint = new Paint();
-		board_paint.setColor(Color.BLACK);
-		board_paint.setTextSize(tile_size * 0.25f);
+		// Centering in X: use alignment (and X at midpoint)
+		float board_x = (width / 2);
 		
-		canvas.drawText("Score: " + game2048.getScore(), board_x, board_y, board_paint);
+		// Centering in Y: measure ascent/descent first
+		float board_y = (height - board_height * 2 / 3) - (fontMetrics.ascent + fontMetrics.descent) / 2;
 		
+		// Draw Score Text
+		canvas.drawText("Score: " + game2048.getScore(), board_x, board_y, board_text_paint);
+		
+		// Draw Best Score Text
+		board_y = (height - board_height / 3) - (fontMetrics.ascent + fontMetrics.descent) / 2;
+		canvas.drawText("Best Score: " + game2048.getBestScore(), board_x, board_y, board_text_paint);
 	}
 	
 	/**
