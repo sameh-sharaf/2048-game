@@ -2,15 +2,19 @@ package com.ssharaf.game_2048;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-
 import android.os.Environment;
 import android.util.Log;
+
+/**
+ * This class is responsible for reading from and writing 
+ * into application's log file.
+ * 
+ * @author SAMEH SHARAF
+ *
+ */
 
 public class FileManager {
 	
@@ -20,8 +24,11 @@ public class FileManager {
 	// Application log file path. 
 	private String logFilePath;
 	
+	// Constants for folder and file names for application.
 	private static final String FOLDER_NAME = "Game 2048";
 	private static final String FILE_NAME = "game.log";
+	
+	// Tag name for debugging purposes.
 	private static final String TAG = "2048 Game File Manager";
 	
 	/**
@@ -29,11 +36,14 @@ public class FileManager {
 	 */
 	public FileManager()
 	{
+		// Read default SD card root path
 		String sd_root = Environment.getExternalStorageDirectory().toString();
 		folderPath = sd_root + "/" + FOLDER_NAME;
-		Log.i(TAG, folderPath);
+		Log.i(TAG, "SD Card Root Path: " + folderPath);
 		
 		File file = new File(folderPath);
+		
+		// If folder for application is not found on SD card, create new folder.
 		if (!file.exists())
 		{
 			Log.e(TAG, "Folder Not Found");
@@ -43,10 +53,11 @@ public class FileManager {
 		logFilePath = folderPath + "/" + FILE_NAME;
 		Log.i(TAG, logFilePath);
 		file = new File(logFilePath);
+		
+		// If log file is not found, create new log file.
 		if (!file.exists())
 		{
 			Log.e(TAG, "Log File Not Found");
-			
 			try
 			{
 				Log.i(TAG, "Create log file");

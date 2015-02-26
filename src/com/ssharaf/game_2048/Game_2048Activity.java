@@ -1,18 +1,20 @@
 package com.ssharaf.game_2048;
 
 import com.ssharaf.game_2048.SimpleGestureFilter.SimpleGestureListener;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
+
+/**
+ * 2048 game main activity
+ * 
+ * @author SAMEH SHARAF
+ *
+ */
 
 public class Game_2048Activity extends Activity implements SimpleGestureListener
 {
@@ -45,8 +47,14 @@ public class Game_2048Activity extends Activity implements SimpleGestureListener
         // Read best score from log file.
         fileManager = new FileManager();
         best_score = Integer.parseInt(fileManager.readFile().get(0));
-        
-        Log.i(TAG, "Best Score: " + best_score);
+    }
+    
+    @Override
+    public void onConfigurationChanged(Configuration newConfig)
+    {Log.i(TAG, "configuration changed");
+        super.onConfigurationChanged(newConfig);
+
+        gameView.setOrientation(newConfig.orientation);
     }
     
     /**
@@ -65,7 +73,6 @@ public class Game_2048Activity extends Activity implements SimpleGestureListener
         this.detector.onTouchEvent(me);
         return super.dispatchTouchEvent(me);
     }
-    
     
     /**
      * Called when swipe on screen is detected.
@@ -186,6 +193,14 @@ public class Game_2048Activity extends Activity implements SimpleGestureListener
     	game2048.print_grid();
     }
     
+    /**
+     * Show screen dialog to user.
+     * @param activity Activity which will handle dialog view.
+     * @param title	Dialog title.
+     * @param message Dialog message.
+     * @param ok_caption Caption of OK button.
+     * @param cancel_caption Caption of cancel button.
+     */
     public void showDialog(Activity activity, String title, CharSequence message, String ok_caption, String cancel_caption) 
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
@@ -193,6 +208,8 @@ public class Game_2048Activity extends Activity implements SimpleGestureListener
         builder.setTitle(title);
 
         builder.setMessage(message);
+        
+        // OK button action.
         builder.setPositiveButton(ok_caption, new DialogInterface.OnClickListener()
         {
             @Override
@@ -202,6 +219,8 @@ public class Game_2048Activity extends Activity implements SimpleGestureListener
             	setView();
             }
         });
+        
+        // Cancel button action.
         builder.setNegativeButton(cancel_caption, new DialogInterface.OnClickListener()
         {
             @Override
@@ -217,6 +236,6 @@ public class Game_2048Activity extends Activity implements SimpleGestureListener
 	@Override
  	public void onDoubleTap() 
 	{
-		//Toast.makeText(this, "Double Tap", Toast.LENGTH_SHORT).show();
+		
  	}
 }

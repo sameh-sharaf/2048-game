@@ -3,20 +3,43 @@ package com.ssharaf.game_2048;
 import java.util.Random;
 import android.util.Log;
 
+/**
+ * 2048 game core class which manages the game's logic. 
+ * 
+ * @author SAMEH SHARAF
+ *
+ */
+
 public class Game2048 
 {
-	private int[][] puzzle_grid;
+	// Game grid.
+	private int[][] game_grid;
+	
+	// Game number of tiles (Default: 4).
 	private int tiles;
+	
+	// Game's target number to win (Default: 2048).
 	private int winning_number;
+	
+	// User's score.
 	private int score;
+	
+	// Game's best score.
 	private static int best_score;
+	
+	// Last added number's row number.
 	private int last_num_row;
+	
+	// Last added number's column number.
 	private int last_num_col;
 	
+	// Tag name for debugging.
 	private final static String TAG = "Game 2048";
 	
 	/**
 	 * Default constructor.
+	 * Here, we defined the game with 4 tiles and target number of 2048
+	 * which is the original. You can modify it whatever you want!
 	 */
 	public Game2048()
 	{
@@ -45,7 +68,7 @@ public class Game2048
 	 */
 	public int get_tile(int i, int j)
 	{
-		return puzzle_grid[i][j];
+		return game_grid[i][j];
 	}
 	
 	/**
@@ -56,7 +79,7 @@ public class Game2048
 	 */
 	public void set_tile(int i, int j, int x)
 	{
-		puzzle_grid[i][j] = x;
+		game_grid[i][j] = x;
 	}
 	
 	/**
@@ -66,7 +89,7 @@ public class Game2048
 	{
 		for (int i = 0; i < tiles; i++)
 			for (int j = 0; j < tiles; j++)
-				puzzle_grid[i][j] = 0;
+				game_grid[i][j] = 0;
 	}
 	
 	/**
@@ -86,10 +109,10 @@ public class Game2048
 			x = random.nextInt(tiles);
 			y = random.nextInt(tiles);
 		} 
-		while (puzzle_grid[x][y] != 0);
+		while (game_grid[x][y] != 0);
 		
 		// Add new number to game grid
-		puzzle_grid[x][y] = 2;
+		game_grid[x][y] = 2;
 		
 		// Store coordinates of last added number to grid
 		last_num_row = x;
@@ -116,7 +139,7 @@ public class Game2048
 		for(int i = 0; i < tiles; i++)
 		{
 			for(int j = 0; j < tiles; j++)
-				System.out.print(puzzle_grid[i][j] + " ");
+				System.out.print(game_grid[i][j] + " ");
 			System.out.println();
 		}
 	}
@@ -129,7 +152,7 @@ public class Game2048
 	{
 		for (int i = 0; i < tiles; i++)
 			for (int j = 0; j < tiles; j++)
-				if (puzzle_grid[i][j] == winning_number)
+				if (game_grid[i][j] == winning_number)
 					return true;
 		
 		return false;
@@ -144,7 +167,7 @@ public class Game2048
 		// First check: If there are empty tiles left.
 		for (int i = 0; i < tiles; i++)
 			for (int j = 0; j < tiles; j++)
-				if (puzzle_grid[i][j] == 0)
+				if (game_grid[i][j] == 0)
 					return false;
 		
 		// Next check: If there are possible combinations between neighbor tiles horizontally or vertically.
@@ -218,7 +241,7 @@ public class Game2048
 	public void begin_game()
 	{
 		// Create new puzzle grid
-		puzzle_grid = new int[tiles][tiles];
+		game_grid = new int[tiles][tiles];
 		
 		// Initialize grid by assigning 0s to tiles
 		clear_grid();
@@ -247,7 +270,7 @@ public class Game2048
 	 */
 	public int[] getGameGridRow(int i)
 	{
-		return puzzle_grid[i];
+		return game_grid[i];
 	}
 	
 	/**
@@ -306,9 +329,9 @@ public class Game2048
 		for(int i=0; i<tiles; i++)
 		{
 			if (isReverseCopy)
-				arr[i] = puzzle_grid[tiles - i - 1][j];
+				arr[i] = game_grid[tiles - i - 1][j];
 			else
-				arr[i] = puzzle_grid[i][j];
+				arr[i] = game_grid[i][j];
 		}
 	}
 	
@@ -323,9 +346,9 @@ public class Game2048
 		for(int i=0; i<tiles; i++)
 		{
 			if (isReverseCopy)
-				puzzle_grid[tiles - i - 1][j] = arr[i];
+				game_grid[tiles - i - 1][j] = arr[i];
 			else
-				puzzle_grid[i][j] = arr[i];
+				game_grid[i][j] = arr[i];
 		}
 	}
 	
@@ -339,7 +362,7 @@ public class Game2048
 		for(int i = 0; i < tiles; i++)
 		{
 			int[] temp = new int[tiles];
-			copyArray(puzzle_grid[i], temp, false);
+			copyArray(game_grid[i], temp, false);
 			
 			if (combine_tiles(temp))
 			{
